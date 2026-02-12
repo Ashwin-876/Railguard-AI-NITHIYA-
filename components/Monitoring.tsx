@@ -1,6 +1,5 @@
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { COLORS } from '../constants';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { getZoneIntelligence } from '../services/geminiService';
 
 interface MapAlert {
@@ -40,6 +39,28 @@ const HISTORICAL_INCIDENTS: HistoricalIncident[] = [
   { id: 'HIST-006', zone: 'platform', type: 'Medical Faint', date: '2023-09-30', description: 'Dehydration case.', coords: { top: '82%', left: '40%' } },
 ];
 
+const feeds = [
+  { id: 1, name: 'Entrance Hall', status: 'Active', image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80' },
+  { id: 2, name: 'Platform 4', status: 'Alert', image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+  { id: 3, name: 'Ticketing Area', status: 'Active', image: 'https://images.unsplash.com/photo-1515165592879-5d7bb22588ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+  { id: 4, name: 'North Corridor', status: 'Active', image: 'https://images.unsplash.com/photo-1519817914152-22d216bb9170?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+];
+
+const zones: StationZone[] = [
+  { id: 'waiting', name: 'North Waiting Lounge', personnel: ['Guard Meera'], crowdLevel: 'Moderate', status: 'Normal', lastPatrol: '14:45' },
+  { id: 'platform', name: 'Platform 4 (Main)', personnel: ['Officer Arjun', 'Officer Karan'], crowdLevel: 'Overcapacity', status: 'Emergency', lastPatrol: '15:02' },
+  { id: 'ticketing', name: 'Ticketing Hall A', personnel: ['Staff Priya'], crowdLevel: 'Low', status: 'Normal', lastPatrol: '14:30' },
+  { id: 'entrance', name: 'Main Entrance Gate', personnel: ['Guard Rahul'], crowdLevel: 'High', status: 'Alert', lastPatrol: '15:10' }
+];
+
+const mapAlerts: MapAlert[] = [
+  { id: 'ALR-001', zone: 'platform', type: 'Crowd Surge', severity: 'Critical', message: 'Platform 4 exceeding 85% capacity.', coords: { top: '75%', left: '10%', width: '80%', height: '15%' }, icon: 'fa-people-group' },
+  { id: 'ALR-002', zone: 'waiting', type: 'Medical Alert', severity: 'Warning', message: 'Individual reported distress.', coords: { top: '10%', left: '10%', width: '24%', height: '40%' }, icon: 'fa-truck-medical' },
+  { id: 'ALR-003', zone: 'entrance', type: 'Gate Malfunction', severity: 'Info', message: 'Gate G-12 unresponsive.', coords: { top: '50%', left: '45%', width: '10%', height: '10%' }, icon: 'fa-door-closed' }
+];
+
+
+
 const Monitoring: React.FC = () => {
   const [selectedFeed, setSelectedFeed] = useState<number | null>(null);
   const [activeAlertId, setActiveAlertId] = useState<string | null>('ALR-001');
@@ -58,26 +79,6 @@ const Monitoring: React.FC = () => {
   const dragStart = useRef({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
 
-  const feeds = [
-    { id: 1, name: 'Entrance Hall', status: 'Active' },
-    { id: 2, name: 'Platform 4', status: 'Alert' },
-    { id: 3, name: 'Ticketing Area', status: 'Active' },
-    { id: 4, name: 'North Corridor', status: 'Active' },
-  ];
-
-  const zones: StationZone[] = [
-    { id: 'waiting', name: 'North Waiting Lounge', personnel: ['Guard Meera'], crowdLevel: 'Moderate', status: 'Normal', lastPatrol: '14:45' },
-    { id: 'platform', name: 'Platform 4 (Main)', personnel: ['Officer Arjun', 'Officer Karan'], crowdLevel: 'Overcapacity', status: 'Emergency', lastPatrol: '15:02' },
-    { id: 'ticketing', name: 'Ticketing Hall A', personnel: ['Staff Priya'], crowdLevel: 'Low', status: 'Normal', lastPatrol: '14:30' },
-    { id: 'entrance', name: 'Main Entrance Gate', personnel: ['Guard Rahul'], crowdLevel: 'High', status: 'Alert', lastPatrol: '15:10' }
-  ];
-
-  const mapAlerts: MapAlert[] = [
-    { id: 'ALR-001', zone: 'platform', type: 'Crowd Surge', severity: 'Critical', message: 'Platform 4 exceeding 85% capacity.', coords: { top: '75%', left: '10%', width: '80%', height: '15%' }, icon: 'fa-people-group' },
-    { id: 'ALR-002', zone: 'waiting', type: 'Medical Alert', severity: 'Warning', message: 'Individual reported distress.', coords: { top: '10%', left: '10%', width: '24%', height: '40%' }, icon: 'fa-truck-medical' },
-    { id: 'ALR-003', zone: 'entrance', type: 'Gate Malfunction', severity: 'Info', message: 'Gate G-12 unresponsive.', coords: { top: '50%', left: '45%', width: '10%', height: '10%' }, icon: 'fa-door-closed' }
-  ];
-
   const filteredHistory = useMemo(() => {
     const today = new Date();
     return HISTORICAL_INCIDENTS.filter(item => {
@@ -90,11 +91,11 @@ const Monitoring: React.FC = () => {
   }, [historyFilter]);
 
   const selectedZoneData = zones.find(z => z.id === selectedZoneId);
-  const zoneAlerts = mapAlerts.filter(a => a.zone === selectedZoneId);
-  const zoneHistory = filteredHistory.filter(h => h.zone === selectedZoneId);
+  const zoneAlerts = useMemo(() => mapAlerts.filter(a => a.zone === selectedZoneId), [selectedZoneId]);
+  const zoneHistory = useMemo(() => filteredHistory.filter(h => h.zone === selectedZoneId), [filteredHistory, selectedZoneId]);
 
   // Trigger AI analysis when zone selection changes
-  const fetchIntelligence = async () => {
+  const fetchIntelligence = useCallback(async () => {
     if (!selectedZoneId || !selectedZoneData) return;
     setIsInsightLoading(true);
     setZoneInsight(null);
@@ -109,7 +110,7 @@ const Monitoring: React.FC = () => {
     const intelligence = await getZoneIntelligence(dataForAI);
     setZoneInsight(intelligence);
     setIsInsightLoading(false);
-  };
+  }, [selectedZoneId, selectedZoneData, zoneAlerts.length, zoneHistory]);
 
   useEffect(() => {
     if (selectedZoneId) {
@@ -117,7 +118,7 @@ const Monitoring: React.FC = () => {
     } else {
       setZoneInsight(null);
     }
-  }, [selectedZoneId]);
+  }, [selectedZoneId, fetchIntelligence]);
 
   // Zoom Handlers
   const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 3));
@@ -145,15 +146,6 @@ const Monitoring: React.FC = () => {
 
   const onMouseUp = () => setIsDragging(false);
 
-  const getSeverityColorClass = (severity: string) => {
-    switch (severity) {
-      case 'Critical': return 'red';
-      case 'Warning': return 'orange';
-      case 'Info': return 'blue';
-      default: return 'gray';
-    }
-  };
-
   // Parse AI Insight for Structured Display
   const parsedInsight = useMemo(() => {
     if (!zoneInsight) return null;
@@ -171,15 +163,15 @@ const Monitoring: React.FC = () => {
       <div className="lg:col-span-7 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {feeds.map((feed) => (
-            <div 
-              key={feed.id} 
+            <div
+              key={feed.id}
               className={`relative bg-black rounded-xl overflow-hidden aspect-video border-2 transition-all cursor-pointer group ${selectedFeed === feed.id ? 'border-blue-500 ring-4 ring-blue-500/20' : 'border-transparent hover:border-gray-600'}`}
               onClick={() => setSelectedFeed(feed.id)}
             >
-              <img 
-                src={`https://picsum.photos/seed/${feed.id + 20}/640/360`} 
-                alt={feed.name} 
-                className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" 
+              <img
+                src={feed.image}
+                alt={feed.name}
+                className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
               />
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center space-x-2 border border-white/10">
                 <span className={`w-2 h-2 rounded-full animate-pulse ${feed.status === 'Alert' ? 'bg-red-500 shadow-lg shadow-red-500/50' : 'bg-emerald-500 shadow-lg shadow-emerald-500/50'}`}></span>
@@ -217,9 +209,9 @@ const Monitoring: React.FC = () => {
             { label: 'Noise', val: '68dB', icon: 'fa-ear-listen', color: 'text-blue-500' },
             { label: 'CO2', val: '412ppm', icon: 'fa-gauge-high', color: 'text-slate-500' }
           ].map((s, i) => (
-            <div key={i} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
-              <i className={`fa-solid ${s.icon} ${s.color} mb-2`}></i>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{s.label}</span>
+            <div key={i} className="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl border border-slate-300/50 shadow-sm flex flex-col items-center justify-center hover:shadow-md hover:scale-105 transition-all duration-300 group">
+              <i className={`fa-solid ${s.icon} ${s.color} mb-2 text-lg drop-shadow-sm`}></i>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{s.label}</span>
               <span className="text-sm font-bold text-slate-800">{s.val}</span>
             </div>
           ))}
@@ -236,18 +228,18 @@ const Monitoring: React.FC = () => {
               <p className="text-[11px] text-slate-500">Live Alert Visualization</p>
             </div>
             <div className="flex items-center space-x-2">
-               <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 mr-2">
-                 <button onClick={handleZoomOut} className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded transition-colors">
-                   <i className="fa-solid fa-minus text-xs"></i>
-                 </button>
-                 <button onClick={handleReset} className="px-2 text-[9px] font-black text-slate-600 hover:bg-white rounded transition-colors uppercase">
-                   Reset
-                 </button>
-                 <button onClick={handleZoomIn} className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded transition-colors">
-                   <i className="fa-solid fa-plus text-xs"></i>
-                 </button>
-               </div>
-              <button 
+              <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 mr-2">
+                <button onClick={handleZoomOut} className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded transition-colors">
+                  <i className="fa-solid fa-minus text-xs"></i>
+                </button>
+                <button onClick={handleReset} className="px-2 text-[9px] font-black text-slate-600 hover:bg-white rounded transition-colors uppercase">
+                  Reset
+                </button>
+                <button onClick={handleZoomIn} className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded transition-colors">
+                  <i className="fa-solid fa-plus text-xs"></i>
+                </button>
+              </div>
+              <button
                 onClick={() => setShowHistory(!showHistory)}
                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${showHistory ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}
                 title="Toggle Historical Markers"
@@ -256,67 +248,63 @@ const Monitoring: React.FC = () => {
               </button>
             </div>
           </div>
-          
-          <div 
+
+          <div
             className="relative bg-slate-100 p-4 aspect-[4/3] overflow-hidden cursor-crosshair"
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
-            <div 
+            <div
               ref={mapRef}
-              style={{ 
+              style={{
                 transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
                 transformOrigin: 'center',
                 transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
               className="w-full h-full bg-white rounded-xl border border-gray-200 relative overflow-hidden shadow-inner select-none pointer-events-auto"
             >
-              <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
-              
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+
               {/* INTERACTIVE ZONES WITH HIGHLIGHTING */}
-              <div 
+              <div
                 onClick={(e) => { e.stopPropagation(); setSelectedZoneId('waiting'); }}
-                className={`absolute top-10 left-10 w-24 h-40 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${
-                  selectedZoneId === 'waiting' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' : 
+                className={`absolute top-10 left-10 w-24 h-40 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${selectedZoneId === 'waiting' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' :
                   mapAlerts.find(a => a.zone === 'waiting' && a.severity === 'Warning') ? 'bg-orange-50 border-orange-200 text-orange-400 animate-pulse' :
-                  'bg-blue-50/50 border-blue-100 text-blue-400 hover:bg-blue-100'
-                }`}
+                    'bg-blue-50/50 border-blue-100 text-blue-400 hover:bg-blue-100'
+                  }`}
               >
                 <i className="fa-solid fa-couch mb-1"></i>
                 <span className="text-[8px] font-black uppercase">Waiting</span>
               </div>
 
-              <div 
+              <div
                 onClick={(e) => { e.stopPropagation(); setSelectedZoneId('ticketing'); }}
-                className={`absolute top-10 right-10 w-40 h-24 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${
-                  selectedZoneId === 'ticketing' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' : 'bg-slate-50/50 border-slate-100 text-slate-400'
-                }`}
+                className={`absolute top-10 right-10 w-40 h-24 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${selectedZoneId === 'ticketing' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' : 'bg-slate-50/50 border-slate-100 text-slate-400'
+                  }`}
               >
                 <i className="fa-solid fa-ticket mb-1"></i>
                 <span className="text-[8px] font-black uppercase">Ticketing</span>
               </div>
 
-              <div 
+              <div
                 onClick={(e) => { e.stopPropagation(); setSelectedZoneId('entrance'); }}
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border-2 rounded-full p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${
-                  selectedZoneId === 'entrance' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' : 
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border-2 rounded-full p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${selectedZoneId === 'entrance' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105 z-20' :
                   mapAlerts.find(a => a.zone === 'entrance') ? 'bg-blue-50 border-blue-200 text-blue-400' :
-                  'bg-slate-50/50 border-slate-100 text-slate-400'
-                }`}
+                    'bg-slate-50/50 border-slate-100 text-slate-400'
+                  }`}
               >
                 <i className="fa-solid fa-door-open mb-1"></i>
                 <span className="text-[8px] font-black uppercase">Entrance</span>
               </div>
 
-              <div 
+              <div
                 onClick={(e) => { e.stopPropagation(); setSelectedZoneId('platform'); }}
-                className={`absolute bottom-10 left-10 w-[80%] h-12 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${
-                  selectedZoneId === 'platform' ? 'bg-red-600 border-red-400 text-white shadow-lg scale-105 z-20' : 
+                className={`absolute bottom-10 left-10 w-[80%] h-12 border-2 rounded p-2 transition-all cursor-pointer flex flex-col justify-center items-center text-center group ${selectedZoneId === 'platform' ? 'bg-red-600 border-red-400 text-white shadow-lg scale-105 z-20' :
                   mapAlerts.find(a => a.zone === 'platform' && a.severity === 'Critical') ? 'bg-red-50 border-red-400 text-red-500 animate-pulse' :
-                  'bg-slate-50/50 border-slate-100 text-slate-400'
-                }`}
+                    'bg-slate-50/50 border-slate-100 text-slate-400'
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <i className="fa-solid fa-train-subway"></i>
@@ -326,7 +314,7 @@ const Monitoring: React.FC = () => {
 
               {/* HISTORICAL MARKERS */}
               {showHistory && (selectedZoneId ? zoneHistory : filteredHistory).map((h) => (
-                <div 
+                <div
                   key={h.id}
                   style={{ top: h.coords.top, left: h.coords.left }}
                   className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
@@ -349,16 +337,22 @@ const Monitoring: React.FC = () => {
                   style={{ top: alert.coords.top, left: alert.coords.left, width: alert.coords.width, height: alert.coords.height }}
                   className={`absolute rounded-lg cursor-pointer transition-all duration-300 flex items-center justify-center group ${activeAlertId === alert.id ? 'border-2 border-red-500 bg-red-500/10 z-30' : 'bg-transparent'}`}
                 >
-                   {/* PULSATING ICON OVERLAY */}
-                   <div className="relative flex items-center justify-center">
-                      <div className={`absolute w-8 h-8 rounded-full animate-ping opacity-25 bg-${getSeverityColorClass(alert.severity)}-500`}></div>
-                      <div className={`w-8 h-8 rounded-full shadow-lg border-2 border-white flex items-center justify-center text-white bg-${getSeverityColorClass(alert.severity)}-600`}>
-                        <i className={`fa-solid ${alert.icon} text-[10px]`}></i>
-                      </div>
-                      <div className={`absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded whitespace-nowrap z-50`}>
-                        {alert.type}
-                      </div>
-                   </div>
+                  {/* PULSATING ICON OVERLAY */}
+                  <div className="relative flex items-center justify-center">
+                    <div className={`absolute w-8 h-8 rounded-full animate-ping opacity-25 ${alert.severity === 'Critical' ? 'bg-red-500' :
+                      alert.severity === 'Warning' ? 'bg-orange-500' :
+                        'bg-blue-500'
+                      }`}></div>
+                    <div className={`w-8 h-8 rounded-full shadow-lg border-2 border-white flex items-center justify-center text-white ${alert.severity === 'Critical' ? 'bg-red-600' :
+                      alert.severity === 'Warning' ? 'bg-orange-600' :
+                        'bg-blue-600'
+                      }`}>
+                      <i className={`fa-solid ${alert.icon} text-[10px]`}></i>
+                    </div>
+                    <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded whitespace-nowrap z-50">
+                      {alert.type}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -372,7 +366,7 @@ const Monitoring: React.FC = () => {
               {selectedZoneData ? `Zone Intel: ${selectedZoneData.name}` : 'Select a Zone for Intelligence'}
             </h2>
             {selectedZoneId && (
-              <button 
+              <button
                 onClick={fetchIntelligence}
                 className="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center uppercase tracking-widest"
               >
@@ -387,22 +381,22 @@ const Monitoring: React.FC = () => {
                 {/* AI Intelligence Card (Enhanced with Structured Parsing) */}
                 <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl -mr-12 -mt-12"></div>
-                  
+
                   <div className="flex items-center space-x-2 mb-4">
                     <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-500/30">
                       <i className="fa-solid fa-microchip text-blue-400 text-xs"></i>
                     </div>
                     <div>
-                      <h4 className="text-white text-[10px] font-black uppercase tracking-widest">Gemini Predictive Safety Intel</h4>
+                      <h4 className="text-white text-[10px] font-black uppercase tracking-widest">Predictive Safety Intel</h4>
                       <p className="text-[9px] text-blue-400/70 font-bold uppercase">Real-time & Historical Hybrid Analysis</p>
                     </div>
                   </div>
 
                   {isInsightLoading ? (
                     <div className="flex flex-col space-y-3 py-4">
-                       <div className="h-3 bg-slate-800 rounded-full w-3/4 animate-pulse"></div>
-                       <div className="h-3 bg-slate-800 rounded-full w-1/2 animate-pulse"></div>
-                       <div className="h-3 bg-slate-800 rounded-full w-2/3 animate-pulse"></div>
+                      <div className="h-3 bg-slate-800 rounded-full w-3/4 animate-pulse"></div>
+                      <div className="h-3 bg-slate-800 rounded-full w-1/2 animate-pulse"></div>
+                      <div className="h-3 bg-slate-800 rounded-full w-2/3 animate-pulse"></div>
                     </div>
                   ) : (
                     <div className="space-y-4 animate-fadeIn">
@@ -480,12 +474,12 @@ const Monitoring: React.FC = () => {
                 </div>
 
                 <div className="pt-4 border-t border-gray-100 flex gap-2">
-                   <button className="flex-1 py-2 bg-blue-600 text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-100">
-                      View Risk Assessment
-                   </button>
-                   <button className="flex-1 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-slate-800">
-                      Trend Analysis
-                   </button>
+                  <button className="flex-1 py-2 bg-blue-600 text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-100">
+                    View Risk Assessment
+                  </button>
+                  <button className="flex-1 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-slate-800">
+                    Trend Analysis
+                  </button>
                 </div>
               </>
             ) : (

@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie
 } from 'recharts';
 import { COLORS } from '../constants';
 import { getStrategicAnalysis } from '../services/geminiService';
@@ -49,9 +49,8 @@ const Analytics: React.FC = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all capitalize ${
-                activeTab === tab ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'
-              }`}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all capitalize ${activeTab === tab ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'
+                }`}
             >
               {tab.replace('days', ' Days')}
             </button>
@@ -70,9 +69,9 @@ const Analytics: React.FC = () => {
             </span>
           </div>
           <div className="mt-4 flex space-x-1 h-1">
-             {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
-               <div key={i} className="flex-1 bg-blue-100 group-hover:bg-blue-600 transition-all rounded-full" style={{ height: `${h}%` }}></div>
-             ))}
+            {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+              <div key={i} className="flex-1 bg-blue-100 group-hover:bg-blue-600 transition-all rounded-full" style={{ height: `${h}%` }}></div>
+            ))}
           </div>
         </div>
 
@@ -98,12 +97,12 @@ const Analytics: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center space-x-2 mt-4">
-             <div className="flex -space-x-2">
-                <img src="https://i.pravatar.cc/32?u=1" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
-                <img src="https://i.pravatar.cc/32?u=2" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
-                <img src="https://i.pravatar.cc/32?u=3" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
-             </div>
-             <span className="text-[10px] text-slate-500 font-bold">+120 Officers Alert</span>
+            <div className="flex -space-x-2">
+              <img src="https://i.pravatar.cc/32?u=1" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
+              <img src="https://i.pravatar.cc/32?u=2" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
+              <img src="https://i.pravatar.cc/32?u=3" className="w-6 h-6 rounded-full border-2 border-white" alt="" />
+            </div>
+            <span className="text-[10px] text-slate-500 font-bold">+120 Officers Alert</span>
           </div>
         </div>
       </div>
@@ -120,10 +119,10 @@ const Analytics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={incidentDistribution}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                 <YAxis hide />
-                <Tooltip 
-                  cursor={{fill: '#f8fafc'}}
+                <Tooltip
+                  cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                 />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={40}>
@@ -150,11 +149,11 @@ const Analytics: React.FC = () => {
               <AreaChart data={safetyTrend}>
                 <defs>
                   <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1E40AF" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#1E40AF" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#1E40AF" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#1E40AF" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                 <YAxis hide domain={[70, 100]} />
                 <Tooltip />
                 <Area type="monotone" dataKey="score" stroke="#1E40AF" fillOpacity={1} fill="url(#colorScore)" strokeWidth={3} />
@@ -173,17 +172,17 @@ const Analytics: React.FC = () => {
               const intensity = [0, 0, 1, 2, 0, 0, 3, 4, 1, 0, 1, 4, 4, 2, 0, 0, 2, 2, 1, 0, 0, 0, 1, 0, 0][i];
               const colors = ['bg-slate-50', 'bg-blue-100', 'bg-blue-300', 'bg-blue-500', 'bg-blue-800'];
               return (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className={`${colors[intensity]} rounded-md transition-all hover:scale-110 cursor-help border border-white`}
-                  title={`Zone ${i+1}: Intensity Level ${intensity}`}
+                  title={`Zone ${i + 1}: Intensity Level ${intensity}`}
                 ></div>
               );
             })}
           </div>
           <div className="mt-6 flex items-center justify-between text-[10px] font-bold text-slate-400">
-             <span>LOW CONGESTION</span>
-             <span>HIGH SURGE</span>
+            <span>LOW CONGESTION</span>
+            <span>HIGH SURGE</span>
           </div>
         </div>
 
@@ -192,30 +191,30 @@ const Analytics: React.FC = () => {
           {/* Decorative background blur */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-600/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
-          
+
           <div className="relative z-10 h-full flex flex-col">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900">
-                 <i className="fa-solid fa-chess-knight text-white text-xl"></i>
+                <i className="fa-solid fa-chess-knight text-white text-xl"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Gemini Strategic Outlook</h3>
+                <h3 className="text-xl font-bold text-white">Strategic Safety Outlook</h3>
                 <p className="text-blue-400 text-xs font-semibold tracking-wider uppercase">Advanced Safety Analysis</p>
               </div>
             </div>
 
             <div className="flex-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6">
-               <div className="prose prose-invert prose-sm max-w-none">
-                 <p className="text-slate-300 italic leading-relaxed whitespace-pre-wrap">
-                    {strategicOutlook}
-                 </p>
-               </div>
+              <div className="prose prose-invert prose-sm max-w-none">
+                <p className="text-slate-300 italic leading-relaxed whitespace-pre-wrap">
+                  {strategicOutlook}
+                </p>
+              </div>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-               <span className="bg-blue-900/40 text-blue-300 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-blue-800/50">#InfrastructureRefinement</span>
-               <span className="bg-slate-800/40 text-slate-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-slate-700/50">#Q4Forecast</span>
-               <span className="bg-emerald-900/40 text-emerald-300 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-emerald-800/50">#SecurityOptimized</span>
+              <span className="bg-blue-900/40 text-blue-300 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-blue-800/50">#InfrastructureRefinement</span>
+              <span className="bg-slate-800/40 text-slate-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-slate-700/50">#Q4Forecast</span>
+              <span className="bg-emerald-900/40 text-emerald-300 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-emerald-800/50">#SecurityOptimized</span>
             </div>
           </div>
         </div>

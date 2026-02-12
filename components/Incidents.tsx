@@ -24,8 +24,8 @@ const Incidents: React.FC = () => {
     }
   }, [selectedIncident]);
 
-  const filteredIncidents = filter === 'All' 
-    ? incidents 
+  const filteredIncidents = filter === 'All'
+    ? incidents
     : incidents.filter(i => i.severity === filter);
 
   const getSeverityStyles = (severity: string) => {
@@ -86,7 +86,7 @@ const Incidents: React.FC = () => {
             <h2 className="text-lg font-bold text-slate-800">Incident Feed</h2>
             <div className="flex bg-gray-100 p-1 rounded-lg">
               {['All', 'Critical', 'High'].map(f => (
-                <button 
+                <button
                   key={f}
                   onClick={() => setFilter(f as any)}
                   className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${filter === f ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -96,24 +96,22 @@ const Incidents: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="space-y-3 max-h-[calc(100vh-24rem)] overflow-y-auto pr-2 custom-scrollbar">
             {filteredIncidents.map(incident => (
-              <div 
+              <div
                 key={incident.id}
                 onClick={() => setSelectedIncident(incident)}
-                className={`p-4 rounded-xl border-l-4 transition-all cursor-pointer group ${
-                  selectedIncident?.id === incident.id 
-                    ? `shadow-md ring-1 ring-slate-200 ${getSeverityStyles(incident.severity)}` 
+                className={`p-4 rounded-xl border-l-4 transition-all cursor-pointer group ${selectedIncident?.id === incident.id
+                    ? `shadow-md ring-1 ring-slate-200 ${getSeverityStyles(incident.severity)}`
                     : 'bg-white border-white hover:border-slate-200'
-                }`}
+                  }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      incident.severity === 'Critical' ? 'bg-red-100 text-red-600' : 
-                      incident.severity === 'High' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
-                    }`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${incident.severity === 'Critical' ? 'bg-red-100 text-red-600' :
+                        incident.severity === 'High' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                      }`}>
                       <i className={`fa-solid ${incident.type.includes('Medical') ? 'fa-hospital' : 'fa-shield-halved'}`}></i>
                     </div>
                     <div>
@@ -133,7 +131,7 @@ const Incidents: React.FC = () => {
               </div>
             ))}
           </div>
-          
+
           <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center space-x-2">
             <i className="fa-solid fa-plus text-xs"></i>
             <span>Log New Incident</span>
@@ -183,12 +181,12 @@ const Incidents: React.FC = () => {
                   <i className="fa-solid fa-brain text-blue-400 text-4xl"></i>
                 </div>
                 <div className="relative z-10">
-                  <h4 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Gemini Advisor Checklist</h4>
+                  <h4 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">AI Advisor Checklist</h4>
                   <div className={`space-y-3 ${isAiLoading ? 'animate-pulse opacity-50' : ''}`}>
                     {aiProtocol.split('\n').map((line, idx) => (
                       <div key={idx} className="flex items-start space-x-3 group">
                         <div className="w-5 h-5 rounded-full border border-blue-900 flex items-center justify-center shrink-0 mt-0.5 transition-colors group-hover:border-blue-500">
-                           <div className="w-1.5 h-1.5 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         </div>
                         <p className="text-[11px] text-slate-300 font-medium leading-relaxed">{line.replace(/^\d+\.\s*/, '')}</p>
                       </div>
@@ -202,9 +200,9 @@ const Incidents: React.FC = () => {
             </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center">
-               <i className="fa-solid fa-mouse-pointer text-slate-300 text-3xl mb-4"></i>
-               <h3 className="font-bold text-slate-800">No Incident Selected</h3>
-               <p className="text-xs text-slate-500 mt-2">Select an event from the feed to view real-time status and AI protocols.</p>
+              <i className="fa-solid fa-mouse-pointer text-slate-300 text-3xl mb-4"></i>
+              <h3 className="font-bold text-slate-800">No Incident Selected</h3>
+              <p className="text-xs text-slate-500 mt-2">Select an event from the feed to view real-time status and AI protocols.</p>
             </div>
           )}
         </div>
