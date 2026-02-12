@@ -1,0 +1,8 @@
+{
+  "name": "RailGuard AI",
+  "description": "An intelligent railway safety management platform leveraging AI for real-time monitoring, predictive analytics, and emergency coordination in railway networks.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
