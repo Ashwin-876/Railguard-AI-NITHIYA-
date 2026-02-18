@@ -1,4 +1,4 @@
-# RailGuard AI 🚆🛡️
+# RailGuard AI 
 
 ## 📖 Introduction
 
@@ -52,15 +52,15 @@ By integrating these technologies, RailGuard AI ensures passenger safety and str
 
 1.  **Clone and Run:**
     ```bash
-    git clone https://github.com/Ashwin-s-Repo/Railguard-AI-NITHIYA-.git
-    cd railway-gaurd
-    npm install
-    npm run dev
+    git clone https://github.com/
+    
     ```
 
 2.  **Install dependencies:**
     ```bash
     npm install
+    cd railway-gaurd
+    npm run dev
     ```
 
 3.  **Configure Environment:**
@@ -75,7 +75,7 @@ By integrating these technologies, RailGuard AI ensures passenger safety and str
     ```bash
     npm run dev
     ```
-    The app will be available at `http://localhost:5173`.
+    The app will be available at `http://localhost:.
 
 ## 🔒 Security Note
 
