@@ -6,17 +6,28 @@ const Profile: React.FC = () => {
   const [isHandoverLoading, setIsHandoverLoading] = useState(false);
   const [handoverSummary, setHandoverSummary] = useState<string | null>(null);
 
-  const officerData = {
-    name: 'Officer Arjun Singh',
+  const [isEditing, setIsEditing] = useState(false);
+  const [officerData, setOfficerData] = useState({
+    name: 'Nithya Shree S',
     badgeId: 'ND-7712',
     designation: 'Senior Safety Lead',
-    station: 'New Delhi Central',
+    station: 'Coimbatore Junction',
     joiningDate: 'May 2019',
     status: 'On Duty',
-    email: 'arjun.singh@railways.gov.in',
-    phone: '+91 98765-43210',
+    email: 'nithya.shree@railways.gov.in',
+    phone: '+91 98765-XXXXX',
     compliance: 94,
-    incidentsResolved: 1284
+    incidentsResolved: 1284,
+    responseVelocity: 'Top 5%',
+    safetyRating: '4.9/5.0'
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setOfficerData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const certifications = [
@@ -56,8 +67,8 @@ const Profile: React.FC = () => {
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
         <div className="relative">
           <img
-            src="https://picsum.photos/seed/arjun/200/200"
-            alt="Officer Arjun"
+            src="https://picsum.photos/seed/nithya/200/200"
+            alt="Nithya Shree S"
             className="w-40 h-40 rounded-3xl object-cover shadow-lg border-4 border-white ring-1 ring-slate-100"
           />
           <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white shadow-md flex items-center justify-center">
@@ -67,38 +78,122 @@ const Profile: React.FC = () => {
 
         <div className="flex-1 text-center md:text-left">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">{officerData.name}</h2>
+            <div className="flex-1">
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="name"
+                  value={officerData.name}
+                  onChange={handleInputChange}
+                  className="text-3xl font-black text-slate-900 tracking-tight border-b-2 border-blue-500 focus:outline-none w-full"
+                />
+              ) : (
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">{officerData.name}</h2>
+              )}
+
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mt-1">
-                <span className="text-blue-600 text-xs font-bold uppercase tracking-widest">{officerData.designation}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="designation"
+                    value={officerData.designation}
+                    onChange={handleInputChange}
+                    className="text-blue-600 text-xs font-bold uppercase tracking-widest border-b border-blue-300 focus:outline-none"
+                  />
+                ) : (
+                  <span className="text-blue-600 text-xs font-bold uppercase tracking-widest">{officerData.designation}</span>
+                )}
+
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Badge ID: {officerData.badgeId}</span>
+                {isEditing ? (
+                  <div className="flex items-center">
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-widest mr-1">Badge ID:</span>
+                    <input
+                      type="text"
+                      name="badgeId"
+                      value={officerData.badgeId}
+                      onChange={handleInputChange}
+                      className="text-slate-500 text-xs font-bold uppercase tracking-widest w-20 border-b border-blue-300 focus:outline-none"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Badge ID: {officerData.badgeId}</span>
+                )}
               </div>
             </div>
-            <button className="px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-100">
-              Edit Professional Profile
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-lg ${isEditing ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-200' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-100'}`}
+            >
+              {isEditing ? 'Save Changes' : 'Edit Professional Profile'}
             </button>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Response Velocity</p>
-              <h4 className="text-lg font-black text-slate-900">Top 5%</h4>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="responseVelocity"
+                  value={officerData.responseVelocity}
+                  onChange={handleInputChange}
+                  className="text-lg font-black text-slate-900 w-full bg-transparent border-b border-gray-300 focus:outline-none"
+                />
+              ) : (
+                <h4 className="text-lg font-black text-slate-900">{officerData.responseVelocity}</h4>
+              )}
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Incidents Resolved</p>
-              <h4 className="text-lg font-black text-slate-900">{officerData.incidentsResolved}</h4>
+              {isEditing ? (
+                <input
+                  type="number"
+                  name="incidentsResolved"
+                  value={officerData.incidentsResolved}
+                  onChange={handleInputChange}
+                  className="text-lg font-black text-slate-900 w-full bg-transparent border-b border-gray-300 focus:outline-none"
+                />
+              ) : (
+                <h4 className="text-lg font-black text-slate-900">{officerData.incidentsResolved}</h4>
+              )}
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Safety Rating</p>
-              <div className="flex items-center space-x-1">
-                <i className="fa-solid fa-star text-orange-400 text-sm"></i>
-                <h4 className="text-lg font-black text-slate-900">4.9/5.0</h4>
-              </div>
+              {isEditing ? (
+                <div className="flex items-center space-x-1">
+                  <i className="fa-solid fa-star text-orange-400 text-sm"></i>
+                  <input
+                    type="text"
+                    name="safetyRating"
+                    value={officerData.safetyRating}
+                    onChange={handleInputChange}
+                    className="text-lg font-black text-slate-900 w-20 bg-transparent border-b border-gray-300 focus:outline-none"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1">
+                  <i className="fa-solid fa-star text-orange-400 text-sm"></i>
+                  <h4 className="text-lg font-black text-slate-900">{officerData.safetyRating}</h4>
+                </div>
+              )}
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Shift Loyalty</p>
-              <h4 className="text-lg font-black text-slate-900">99.8%</h4>
+              {isEditing ? (
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    name="compliance"
+                    value={officerData.compliance}
+                    onChange={handleInputChange}
+                    className="text-lg font-black text-slate-900 w-16 bg-transparent border-b border-gray-300 focus:outline-none"
+                  />
+                  <span className="text-lg font-black text-slate-900 ml-1">%</span>
+                </div>
+              ) : (
+                <h4 className="text-lg font-black text-slate-900">{officerData.compliance}%</h4>
+              )}
             </div>
           </div>
         </div>
@@ -115,19 +210,59 @@ const Profile: React.FC = () => {
             <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Work Email</p>
-                <p className="text-sm font-semibold text-slate-700">{officerData.email}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="email"
+                    value={officerData.email}
+                    onChange={handleInputChange}
+                    className="text-sm font-semibold text-slate-700 w-full border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-sm font-semibold text-slate-700">{officerData.email}</p>
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Duty Contact</p>
-                <p className="text-sm font-semibold text-slate-700">{officerData.phone}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="phone"
+                    value={officerData.phone}
+                    onChange={handleInputChange}
+                    className="text-sm font-semibold text-slate-700 w-full border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-sm font-semibold text-slate-700">{officerData.phone}</p>
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Primary Station</p>
-                <p className="text-sm font-semibold text-slate-700">{officerData.station}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="station"
+                    value={officerData.station}
+                    onChange={handleInputChange}
+                    className="text-sm font-semibold text-slate-700 w-full border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-sm font-semibold text-slate-700">{officerData.station}</p>
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Enlistment Date</p>
-                <p className="text-sm font-semibold text-slate-700">{officerData.joiningDate}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="joiningDate"
+                    value={officerData.joiningDate}
+                    onChange={handleInputChange}
+                    className="text-sm font-semibold text-slate-700 w-full border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
+                ) : (
+                  <p className="text-sm font-semibold text-slate-700">{officerData.joiningDate}</p>
+                )}
               </div>
             </div>
           </div>

@@ -9,10 +9,23 @@ interface LayoutProps {
   currentPath: string;
   onNavigate: (path: string) => void;
   onLogout: () => void;
+  currentStation: string;
+  onStationChange: (station: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavigate, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavigate, onLogout, currentStation, onStationChange }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showStationMenu, setShowStationMenu] = useState(false);
+
+  const stations = [
+    "Coimbatore Junction",
+    "New Delhi Central",
+    "Mumbai CST",
+    "Chennai Egmore",
+    "Howrah Junction",
+    "Bangalore City",
+    "Secunderabad Jn"
+  ];
 
   const menuItems = [
     { name: 'Dashboard', icon: 'fa-chart-pie', path: 'dashboard' },
@@ -21,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavi
     { name: 'Analytics', icon: 'fa-magnifying-glass-chart', path: 'analytics' },
     { name: 'Incidents', icon: 'fa-file-invoice', path: 'incidents' },
     { name: 'AI Chatbot', icon: 'fa-robot', path: 'chatbot' },
+    { name: 'Live Train Map', icon: 'fa-map-location-dot', path: 'live-map' },
     { name: 'Alerts', icon: 'fa-bell', path: 'alerts' },
     { name: 'Profile', icon: 'fa-user', path: 'profile' },
   ];
@@ -28,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavi
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 transition-all duration-300 flex flex-col shadow-xl z-20`}
       >
         <div className="p-6 flex items-center justify-between">
@@ -43,13 +57,12 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavi
             <button
               key={item.path}
               onClick={() => onNavigate(item.path)}
-              className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
-                currentPath === item.path 
-                  ? 'bg-blue-600 text-white' 
-                  : item.highlight 
-                    ? 'text-orange-400 hover:bg-slate-800' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
+              className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${currentPath === item.path
+                ? 'bg-blue-600 text-white'
+                : item.highlight
+                  ? 'text-orange-400 hover:bg-slate-800'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                }`}
             >
               <i className={`fa-solid ${item.icon} w-6 text-center`}></i>
               {isSidebarOpen && <span className="ml-4 font-medium">{item.name}</span>}
@@ -58,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavi
         </nav>
 
         <div className="p-4 mt-auto">
-          <button 
+          <button
             onClick={onLogout}
             className="w-full flex items-center px-4 py-3 text-slate-400 hover:bg-red-900/30 hover:text-red-400 rounded-lg transition-all"
           >
@@ -78,13 +91,36 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, currentPath, onNavi
             </h1>
           </div>
           <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-              <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
-              <span>Live: New Delhi Central</span>
+            <div className="relative">
+              <button
+                onClick={() => setShowStationMenu(!showStationMenu)}
+                className="flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors cursor-pointer"
+              >
+                <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                <span>Live: {currentStation}</span>
+                <i className="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+              </button>
+
+              {showStationMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 animate-fadeIn">
+                  {stations.map(station => (
+                    <button
+                      key={station}
+                      onClick={() => {
+                        onStationChange(station);
+                        setShowStationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors ${currentStation === station ? 'text-blue-600 bg-blue-50' : 'text-slate-600'}`}
+                    >
+                      {station}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-3 border-l pl-6 border-gray-200">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900">Officer Arjun</p>
+                <p className="text-sm font-semibold text-slate-900">Nithya Shree S</p>
                 <p className="text-xs text-slate-500">{userRole}</p>
               </div>
               <img src="https://picsum.photos/40/40" alt="Profile" className="w-10 h-10 rounded-full border border-gray-200" />

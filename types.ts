@@ -16,6 +16,7 @@ export interface Incident {
   timestamp: string;
   status: 'Reported' | 'Dispatched' | 'Resolving' | 'Closed';
   description: string;
+  logs?: string[];
 }
 
 export interface TrainStatus {

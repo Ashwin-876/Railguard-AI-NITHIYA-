@@ -4,26 +4,45 @@ import React, { useState } from 'react';
 const Emergency: React.FC = () => {
   const [sosActive, setSosActive] = useState(false);
   const [alertType, setAlertType] = useState('');
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
 
   const handleSos = () => {
+    if (sosActive) return;
+
     setSosActive(true);
+
+    // Play Loud Security Alarm (Continuous)
+    const newAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3');
+    newAudio.loop = true;
+    newAudio.play().catch(e => console.error("Audio playback failed:", e));
+    setAudio(newAudio);
+
     // Simulate real-time logic
     setTimeout(() => {
-       alert("Emergency dispatch units have been notified for New Delhi Central, Platform 4.");
+      alert("Emergency dispatch units have been notified for New Delhi Central, Platform 4.");
     }, 500);
+  };
+
+  const handleStopSos = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setSosActive(false);
+    setAudio(null);
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* SOS Trigger Area */}
-      <div className={`p-12 rounded-3xl transition-all duration-500 flex flex-col items-center justify-center text-center ${
-        sosActive ? 'bg-red-600 text-white shadow-2xl shadow-red-300' : 'bg-white border-2 border-dashed border-red-200 shadow-sm'
-      }`}>
-        <div 
+      <div className={`p-12 rounded-3xl transition-all duration-500 flex flex-col items-center justify-center text-center ${sosActive ? 'bg-red-600 text-white shadow-2xl shadow-red-300' : 'bg-white border-2 border-dashed border-red-200 shadow-sm'
+        }`}>
+        <div
           onClick={handleSos}
-          className={`w-32 h-32 md:w-48 md:h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${
-            sosActive ? 'bg-white text-red-600' : 'bg-red-600 text-white hover:bg-red-700 shadow-xl shadow-red-100'
-          }`}
+          className={`w-32 h-32 md:w-48 md:h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${sosActive ? 'bg-white text-red-600' : 'bg-red-600 text-white hover:bg-red-700 shadow-xl shadow-red-100'
+            }`}
         >
           <div className="flex flex-col items-center">
             <i className="fa-solid fa-power-off text-3xl md:text-5xl mb-2"></i>
@@ -34,10 +53,19 @@ const Emergency: React.FC = () => {
           {sosActive ? 'EMERGENCY DISPATCHED' : 'ONE-CLICK EMERGENCY SOS'}
         </h2>
         <p className={`mt-2 max-w-md ${sosActive ? 'text-red-100' : 'text-slate-500'}`}>
-          {sosActive 
-            ? 'Station master and emergency responders have been alerted. Stay in position.' 
+          {sosActive
+            ? 'Station master and emergency responders have been alerted. Stay in position.'
             : 'Press the button above to immediately notify all station security and nearby emergency services.'}
         </p>
+
+        {sosActive && (
+          <button
+            onClick={handleStopSos}
+            className="mt-6 bg-white text-red-600 px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-red-50 transition-colors shadow-lg animate-pulse"
+          >
+            DISABLE ALARM
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -57,7 +85,7 @@ const Emergency: React.FC = () => {
               </div>
               <button className="text-emerald-700 font-bold text-xs uppercase hover:underline">Dispatch</button>
             </div>
-            
+
             <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center">

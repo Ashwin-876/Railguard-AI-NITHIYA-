@@ -31,24 +31,24 @@ interface StationZone {
 }
 
 const HISTORICAL_INCIDENTS: HistoricalIncident[] = [
-  { id: 'HIST-001', zone: 'platform', type: 'Slip & Fall', date: '2023-10-20', description: 'Wet surface after cleaning.', coords: { top: '80%', left: '20%' } },
-  { id: 'HIST-002', zone: 'platform', type: 'Overcrowding', date: '2023-10-25', description: 'Holiday rush surge.', coords: { top: '78%', left: '60%' } },
-  { id: 'HIST-003', zone: 'waiting', type: 'Theft Report', date: '2023-10-15', description: 'Stolen laptop bag.', coords: { top: '25%', left: '15%' } },
-  { id: 'HIST-004', zone: 'entrance', type: 'Scanner Failure', date: '2023-10-22', description: 'Baggage scanner downtime.', coords: { top: '45%', left: '48%' } },
-  { id: 'HIST-005', zone: 'ticketing', type: 'Verbal Altercation', date: '2023-10-18', description: 'Queue dispute at Counter 4.', coords: { top: '15%', left: '75%' } },
-  { id: 'HIST-006', zone: 'platform', type: 'Medical Faint', date: '2023-09-30', description: 'Dehydration case.', coords: { top: '82%', left: '40%' } },
+  { id: 'HIST-001', zone: 'platform', type: 'Slip & Fall', date: '2026-02-15', description: 'Wet surface after cleaning.', coords: { top: '80%', left: '20%' } },
+  { id: 'HIST-002', zone: 'platform', type: 'Overcrowding', date: '2026-02-12', description: 'Holiday rush surge.', coords: { top: '78%', left: '60%' } },
+  { id: 'HIST-003', zone: 'waiting', type: 'Theft Report', date: '2026-02-10', description: 'Stolen laptop bag.', coords: { top: '25%', left: '15%' } },
+  { id: 'HIST-004', zone: 'entrance', type: 'Scanner Failure', date: '2026-02-05', description: 'Baggage scanner downtime.', coords: { top: '45%', left: '48%' } },
+  { id: 'HIST-005', zone: 'ticketing', type: 'Verbal Altercation', date: '2026-02-16', description: 'Queue dispute at Counter 4.', coords: { top: '15%', left: '75%' } },
+  { id: 'HIST-006', zone: 'platform', type: 'Medical Faint', date: '2026-02-18', description: 'Dehydration case.', coords: { top: '82%', left: '40%' } },
 ];
 
 const feeds = [
   { id: 1, name: 'Entrance Hall', status: 'Active', image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80' },
   { id: 2, name: 'Platform 4', status: 'Alert', image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { id: 3, name: 'Ticketing Area', status: 'Active', image: 'https://images.unsplash.com/photo-1515165592879-5d7bb22588ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+  { id: 3, name: 'Ticketing Area', status: 'Active', image: 'https://images.unsplash.com/photo-1532105956626-9569c03602f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
   { id: 4, name: 'North Corridor', status: 'Active', image: 'https://images.unsplash.com/photo-1519817914152-22d216bb9170?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
 ];
 
 const zones: StationZone[] = [
   { id: 'waiting', name: 'North Waiting Lounge', personnel: ['Guard Meera'], crowdLevel: 'Moderate', status: 'Normal', lastPatrol: '14:45' },
-  { id: 'platform', name: 'Platform 4 (Main)', personnel: ['Officer Arjun', 'Officer Karan'], crowdLevel: 'Overcapacity', status: 'Emergency', lastPatrol: '15:02' },
+  { id: 'platform', name: 'Platform 4 (Main)', personnel: ['Nithya Shree S', 'Officer Karan'], crowdLevel: 'Overcapacity', status: 'Emergency', lastPatrol: '15:02' },
   { id: 'ticketing', name: 'Ticketing Hall A', personnel: ['Staff Priya'], crowdLevel: 'Low', status: 'Normal', lastPatrol: '14:30' },
   { id: 'entrance', name: 'Main Entrance Gate', personnel: ['Guard Rahul'], crowdLevel: 'High', status: 'Alert', lastPatrol: '15:10' }
 ];
@@ -65,7 +65,7 @@ const Monitoring: React.FC = () => {
   const [selectedFeed, setSelectedFeed] = useState<number | null>(null);
   const [activeAlertId, setActiveAlertId] = useState<string | null>('ALR-001');
   const [selectedZoneId, setSelectedZoneId] = useState<'waiting' | 'platform' | 'entrance' | 'ticketing' | null>(null);
-  const [historyFilter, setHistoryFilter] = useState<'7' | '30' | 'All'>('30');
+  const [historyFilter, setHistoryFilter] = useState<'7' | '30' | 'All'>('All');
   const [showHistory, setShowHistory] = useState(true);
 
   // AI Intelligence State
@@ -453,21 +453,21 @@ const Monitoring: React.FC = () => {
                   <div>
                     <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Historical Recurring Issues</h4>
                     <div className="space-y-2">
-                      {zoneHistory.length > 0 ? zoneHistory.map(h => (
-                        <div key={h.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start space-x-3">
-                          <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center shrink-0">
-                            <i className="fa-solid fa-clock-rotate-left text-slate-500 text-xs"></i>
-                          </div>
-                          <div>
-                            <div className="flex items-center justify-between w-full">
-                              <p className="text-xs font-bold text-slate-800">{h.type}</p>
-                              <p className="text-[9px] text-slate-400">{h.date}</p>
+                      {zoneHistory.length > 0 ? (
+                        zoneHistory.map((h, idx) => (
+                          <div key={h.id} className="flex items-start space-x-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                            <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0 border border-red-100">
+                              <i className="fa-solid fa-triangle-exclamation text-xs"></i>
                             </div>
-                            <p className="text-[10px] text-slate-500 mt-1">{h.description}</p>
+                            <div>
+                              <h5 className="text-[11px] font-bold text-slate-700">{h.type}</h5>
+                              <p className="text-[10px] text-slate-500 leading-tight">{h.description}</p>
+                              <span className="text-[9px] text-slate-400 font-medium mt-1 inline-block">{h.date}</span>
+                            </div>
                           </div>
-                        </div>
-                      )) : (
-                        <p className="text-[10px] text-slate-400 italic">No historical data for this timeframe.</p>
+                        ))
+                      ) : (
+                        <p className="text-[10px] text-slate-400 italic">No recurring issues flagged for this period.</p>
                       )}
                     </div>
                   </div>

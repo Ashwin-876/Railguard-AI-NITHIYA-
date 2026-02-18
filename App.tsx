@@ -8,6 +8,7 @@ import Emergency from './components/Emergency';
 import Analytics from './components/Analytics';
 import Incidents from './components/Incidents';
 import Alerts from './components/Alerts';
+import LiveMap from './components/LiveMap';
 import Profile from './components/Profile';
 import { UserRole } from './types';
 
@@ -16,6 +17,7 @@ const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole>('Admin');
   const [currentPath, setCurrentPath] = useState('dashboard');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentStation, setCurrentStation] = useState("Coimbatore Junction");
 
   // Mock Login Handler
   const handleLogin = (e: React.FormEvent) => {
@@ -24,6 +26,7 @@ const App: React.FC = () => {
   };
 
   if (!isLoggedIn) {
+    // ... login screen (unchanged) works because we return early
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 bg-[url('https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&q=80&w=2000')] bg-cover bg-center">
         <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
@@ -35,7 +38,7 @@ const App: React.FC = () => {
           <form onSubmit={handleLogin} className="p-8 space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Your Role</label>
-              <select 
+              <select
                 value={userRole}
                 onChange={(e) => setUserRole(e.target.value as UserRole)}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-slate-700"
@@ -48,9 +51,9 @@ const App: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Passcode / Identity ID</label>
-              <input 
-                type="password" 
-                defaultValue="••••••••" 
+              <input
+                type="password"
+                defaultValue="••••••••"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
             </div>
@@ -82,6 +85,8 @@ const App: React.FC = () => {
         return <Incidents />;
       case 'alerts':
         return <Alerts />;
+      case 'live-map':
+        return <LiveMap currentStation={currentStation} />;
       case 'profile':
         return <Profile />;
       default:
@@ -99,11 +104,13 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout 
-      userRole={userRole} 
-      currentPath={currentPath} 
-      onNavigate={setCurrentPath} 
+    <Layout
+      userRole={userRole}
+      currentPath={currentPath}
+      onNavigate={setCurrentPath}
       onLogout={() => setIsLoggedIn(false)}
+      currentStation={currentStation}
+      onStationChange={setCurrentStation}
     >
       {renderContent()}
     </Layout>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSafetyBriefing } from '../services/geminiService';
+import { getSafetyBriefing } from '../services/bytezService';
 
 interface AlertItem {
   id: string;

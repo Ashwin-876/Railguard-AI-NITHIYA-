@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Initialize the Gemini API client
 // Ideally use import.meta.env.VITE_GEMINI_API_KEY if possible, but process.env is defined in vite config
 const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+console.log("[DEBUG] API Key Loaded:", !!apiKey, "Length:", apiKey?.length);
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export const chatWithGemini = async (message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) => {
@@ -112,7 +113,7 @@ export const getHandoverReport = async (stats: any) => {
       systemInstruction: "You are an AI shift coordinator. Generate a 2-paragraph summary focusing on incident status and station health. Be professional."
     });
 
-    const prompt = `Generate a brief shift handover report for Officer Arjun. Stats: ${JSON.stringify(stats)}`;
+    const prompt = `Generate a brief shift handover report for Officer Nithya Shree S. Stats: ${JSON.stringify(stats)}`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text();
@@ -141,6 +142,23 @@ export const getZoneIntelligence = async (zoneData: any) => {
   } catch (error) {
     console.error("AI Service Error (Zone):", error);
     return "RISKS: Data connectivity issues, unknown personnel status. ACTIONS: Perform manual zone sweep, verify sensor calibration.";
+  }
+};
+
+export const getTrafficAnalysis = async (trainData: any) => {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: "You are a Railway Traffic Controller AI. Analyze the live train data. Provide a status summary and 2 critical actions to optimize flow or handle delays. Keep it professional and under 50 words."
+    });
+
+    const prompt = `Analyze this live train traffic data: ${JSON.stringify(trainData)}`;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("AI Service Error (Traffic):", error);
+    return "Traffic Analysis: Monitor Signal 12 for congestion. Prioritize Vande Bharat express clearance.";
   }
 };
 

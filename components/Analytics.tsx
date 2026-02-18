@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, AreaChart, Area, Cell, PieChart, Pie
 } from 'recharts';
 import { COLORS } from '../constants';
-import { getStrategicAnalysis } from '../services/geminiService';
+import { getStrategicAnalysis } from '../services/bytezService';
 
 const incidentDistribution = [
   { name: 'Security', count: 42, color: '#1E40AF' },
